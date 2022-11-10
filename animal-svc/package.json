@@ -1,5 +1,5 @@
 {
-  "name": "otot-b",
+  "name": "animal-svc",
   "version": "1.0.0",
   "main": "app.js",
   "type": "module",

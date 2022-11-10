@@ -8,7 +8,7 @@ import {
   updateAnimalCount,
 } from "./controller/animal-controller.js";
 const app = express();
-const port = 3000;
+const port = 5000;
 
 const router = express.Router();
 app.use(express.urlencoded({ extended: true }));

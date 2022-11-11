@@ -14,12 +14,14 @@ import {
   Box,
   Heading,
   Button,
+  Text,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { animalSvcClient } from '../../utils/request.ts';
 
 const HomePage = () => {
   const [animals, setAnimals] = useState([]);
+  const [symbols, setSymbols] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -87,6 +89,38 @@ const HomePage = () => {
     }
   };
 
+  const awsLambdaFunctionHandler = async event => {
+    event.preventDefault();
+    try {
+      const search = event.target.symbol.value;
+      let url =
+        'https://2u76pzfzoa.execute-api.ap-southeast-1.amazonaws.com/test/symbol' +
+        '?search=' +
+        search;
+      fetch(url, {
+        method: 'GET',
+      })
+        .then(response => {
+          return response.text();
+        })
+        .then(data => {
+          const parsed_json = JSON.parse(data);
+          const syms = Object.entries(parsed_json).map(([sym, val]) => {
+            return (
+              <Tr key={sym}>
+                <Td>{sym}</Td>
+                <Td>{val}</Td>
+              </Tr>
+            );
+          });
+          setSymbols(syms);
+        });
+    } catch (err) {
+      console.log(err);
+      alert(err.response.data.message);
+    }
+  };
+
   return (
     <Center sx={{ width: '80vw' }} flexDir="column" justifySelf="center">
       <Box my={2}>
@@ -143,6 +177,34 @@ const HomePage = () => {
             Submit
           </Button>
         </form>
+      </Box>
+      <Box my={2}>
+        <Heading size={1}>Find exchange symbols</Heading>
+        <Text>AWS Lambda Function Call</Text>
+        <form onSubmit={awsLambdaFunctionHandler}>
+          <FormControl isRequired>
+            <FormLabel>Symbol Search</FormLabel>
+            <Input id="symbol" name="symbol" placeholder="name" />
+          </FormControl>
+          <Button my={2} type="submit">
+            Submit
+          </Button>
+        </form>
+      </Box>
+      <Box my={2}>
+        <Heading size={1}>Symbol List</Heading>
+        <TableContainer>
+          <Table variant="simple">
+            <TableCaption>Symbols</TableCaption>
+            <Thead>
+              <Tr>
+                <Th>Symbol</Th>
+                <Th>Full Name</Th>
+              </Tr>
+            </Thead>
+            <Tbody>{symbols}</Tbody>
+          </Table>
+        </TableContainer>
       </Box>
     </Center>
   );
